@@ -30,7 +30,7 @@ export function TodoItem({ todo }: TodoItemProps) {
   };
 
   return (
-    <div className="group flex items-center gap-2 p-2 hover:bg-gray-50">
+    <div className="group flex items-center gap-2 rounded-lg bg-white p-3 shadow-sm ring-1 ring-black/5 transition-colors hover:bg-gray-50">
       <input
         type="checkbox"
         checked={todo.completed}

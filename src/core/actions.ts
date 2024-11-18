@@ -13,9 +13,10 @@ const actions = {
   ['todo/remove']: actionDef<{ id: string }>(),
   ['todo/edit']: actionDef<{ id: string; text: string }>(),
   ['todo/clear-completed']: actionDef<null>(),
+  ['todo/reorder']: actionDef<{ sourceIndex: number; destinationIndex: number }>(),
   ['filter/set']: actionDef<{ filter: State['filter'] }>(),
   ['todo/add-async']: actionDef<{ text: string }>(),
-  ['eff/todo-add-ready']: actionDef<Todo>(),
+  ['eff/todo-add-ready']: actionDef<State>(),
 } as const;
 
 /* Action Types */

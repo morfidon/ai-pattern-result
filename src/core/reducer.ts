@@ -52,6 +52,17 @@ export const reducer = (state: State = initialState, action: Action): State => {
       };
     }
 
+    case AT['todo/reorder']: {
+      const { sourceIndex, destinationIndex } = action.payload;
+      const newTodos = Array.from(state.todos);
+      const [removed] = newTodos.splice(sourceIndex, 1);
+      newTodos.splice(destinationIndex, 0, removed);
+      return {
+        ...state,
+        todos: newTodos,
+      };
+    }
+
     case AT['filter/set']: {
       return {
         ...state,
@@ -60,10 +71,7 @@ export const reducer = (state: State = initialState, action: Action): State => {
     }
 
     case AT['eff/todo-add-ready']: {
-      return {
-        ...state,
-        todos: [...state.todos, action.payload],
-      };
+      return action.payload;
     }
 
     default:

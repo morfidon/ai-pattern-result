@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { AC } from '@/core/actions';
 import { reducer } from '@/core/reducer';
 import { selectFilter, selectFilteredTodos, selectTodoStats, selectTodos } from '@/core/selectors';
@@ -6,9 +6,22 @@ import { initialState, State } from '@/core/state';
 
 describe('Todo Application', () => {
   let state: State;
+  let mockStorage: Record<string, string> = {};
+
+  // Mock localStorage before tests
+  vi.stubGlobal('localStorage', {
+    getItem: vi.fn((key: string) => mockStorage[key] || null),
+    setItem: vi.fn((key: string, value: string) => {
+      mockStorage[key] = value;
+    }),
+    clear: vi.fn(() => {
+      mockStorage = {};
+    }),
+  });
 
   beforeEach(() => {
     state = initialState;
+    mockStorage = {};
   });
 
   describe('Reducer', () => {
@@ -63,6 +76,17 @@ describe('Todo Application', () => {
       state = reducer(state, AC['filter/set']({ filter: 'active' }));
       expect(state.filter).toBe('active');
     });
+
+    it('should reorder todos', () => {
+      state = reducer(state, AC['todo/add']({ text: 'Todo 1' }));
+      state = reducer(state, AC['todo/add']({ text: 'Todo 2' }));
+      state = reducer(state, AC['todo/add']({ text: 'Todo 3' }));
+
+      state = reducer(state, AC['todo/reorder']({ sourceIndex: 0, destinationIndex: 2 }));
+      expect(state.todos[2].text).toBe('Todo 1');
+      expect(state.todos[0].text).toBe('Todo 2');
+      expect(state.todos[1].text).toBe('Todo 3');
+    });
   });
 
   describe('Selectors', () => {
@@ -116,6 +140,26 @@ describe('Todo Application', () => {
       state = reducer(state, AC['eff/todo-add-ready'](todo));
       expect(state.todos).toHaveLength(1);
       expect(state.todos[0].text).toBe(text);
+    });
+  });
+
+  describe('Local Storage', () => {
+    beforeEach(() => {
+      state = initialState;
+    });
+
+    it('should persist and restore todos', () => {
+      // Add some todos
+      state = reducer(state, AC['todo/add']({ text: 'Todo 1' }));
+      state = reducer(state, AC['todo/add']({ text: 'Todo 2' }));
+      state = reducer(state, AC['todo/toggle']({ id: state.todos[0].id }));
+      state = reducer(state, AC['filter/set']({ filter: 'completed' }));
+
+      // Verify state is correct
+      expect(state.todos).toHaveLength(2);
+      expect(state.filter).toBe('completed');
+      expect(state.todos[0].completed).toBe(true);
+      expect(state.todos[1].completed).toBe(false);
     });
   });
 });

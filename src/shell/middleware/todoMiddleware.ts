@@ -12,7 +12,7 @@ export const todoMiddleware: AppMiddleware =
     const result = next(action);
 
     if (action.type === AT['todo/add-async']) {
-      await delay(1000); // Simulate API call
+      
       const newTodo: Todo = {
         id: crypto.randomUUID(),
         text: action.payload.text,
