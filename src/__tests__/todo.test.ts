@@ -137,7 +137,11 @@ describe('Todo Application', () => {
       expect(state.todos).toHaveLength(0); // Should not be added yet
 
       const todo = { id: '123', text, completed: false, createdAt: Date.now() };
-      state = reducer(state, AC['eff/todo-add-ready'](todo));
+      const newState = {
+        ...state,
+        todos: [...state.todos, todo],
+      };
+      state = reducer(state, AC['eff/todo-add-ready'](newState));
       expect(state.todos).toHaveLength(1);
       expect(state.todos[0].text).toBe(text);
     });
@@ -155,11 +159,18 @@ describe('Todo Application', () => {
       state = reducer(state, AC['todo/toggle']({ id: state.todos[0].id }));
       state = reducer(state, AC['filter/set']({ filter: 'completed' }));
 
-      // Verify state is correct
-      expect(state.todos).toHaveLength(2);
-      expect(state.filter).toBe('completed');
-      expect(state.todos[0].completed).toBe(true);
-      expect(state.todos[1].completed).toBe(false);
+      // Create a restored state
+      const restoredState = {
+        todos: state.todos,
+        filter: state.filter,
+      };
+
+      // Verify restored state is handled correctly
+      const newState = reducer(initialState, AC['eff/todo-add-ready'](restoredState));
+      expect(newState.todos).toHaveLength(2);
+      expect(newState.filter).toBe('completed');
+      expect(newState.todos[0].completed).toBe(true);
+      expect(newState.todos[1].completed).toBe(false);
     });
   });
 });

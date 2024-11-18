@@ -43,7 +43,7 @@ export function usePersistentStore() {
       };
       dispatch(AC['eff/todo-add-ready'](restoredState));
     }
-  }, [storedState]);
+  }, [storedState, dispatch, currentTodos.length, isTestEnv]);
 
   // Save state changes to localStorage
   useEffect(() => {
@@ -53,5 +53,5 @@ export function usePersistentStore() {
       todos: currentTodos,
       filter: currentFilter,
     });
-  }, [currentTodos, currentFilter]);
+  }, [currentTodos, currentFilter, setStoredState, isTestEnv]);
 }

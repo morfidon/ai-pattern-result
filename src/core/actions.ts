@@ -1,4 +1,4 @@
-import { State, Todo } from './state';
+import { State } from './state';
 import {
   actionDef,
   makeActionCreators,
